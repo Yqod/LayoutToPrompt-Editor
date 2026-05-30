@@ -34,28 +34,37 @@ interface CanvasStore {
   redo: () => void;
   clearCanvas: () => void;
   setCanvasSize: (preset: CanvasPresetId, width: number, height: number) => void;
+  // Layers panel actions
+  renameElement: (id: string, name: string) => void;
+  toggleVisibility: (id: string) => void;
+  toggleLock: (id: string) => void;
+  reorderLayers: (orderedIds: string[]) => void;
 }
+
+const TYPE_NAMES: Record<ElementType, string> = {
+  heading:   'Heading',
+  paragraph: 'Paragraph',
+  button:    'Button',
+  image:     'Image',
+  rectangle: 'Rectangle',
+  circle:    'Circle',
+};
 
 let idCounter = 1;
 function genId() {
   return `el_${Date.now()}_${idCounter++}`;
 }
 
-function getDefaultForType(type: ElementType, x: number, y: number): CanvasElement {
+function makeDefault(type: ElementType, x: number, y: number, name: string): CanvasElement {
   const id = genId();
+  const base = { id, x, y, name, visible: true, locked: false };
   switch (type) {
-    case 'heading':
-      return { ...DEFAULT_HEADING, id, x, y };
-    case 'paragraph':
-      return { ...DEFAULT_PARAGRAPH, id, x, y };
-    case 'button':
-      return { ...DEFAULT_BUTTON, id, x, y };
-    case 'rectangle':
-      return { ...DEFAULT_RECTANGLE, id, x, y };
-    case 'circle':
-      return { ...DEFAULT_CIRCLE, id, x, y };
-    case 'image':
-      return { ...DEFAULT_IMAGE, id, x, y };
+    case 'heading':   return { ...DEFAULT_HEADING,   ...base };
+    case 'paragraph': return { ...DEFAULT_PARAGRAPH, ...base };
+    case 'button':    return { ...DEFAULT_BUTTON,    ...base };
+    case 'rectangle': return { ...DEFAULT_RECTANGLE, ...base };
+    case 'circle':    return { ...DEFAULT_CIRCLE,    ...base };
+    case 'image':     return { ...DEFAULT_IMAGE,     ...base };
   }
 }
 
@@ -71,8 +80,10 @@ export const useCanvasStore = create<CanvasStore>()(
       historyIndex: 0,
 
       addElement: (type, x = 100, y = 100) => {
-        const newEl = getDefaultForType(type, x, y);
         set((state) => {
+          const count = state.elements.filter((e) => e.type === type).length + 1;
+          const name = `${TYPE_NAMES[type]} ${count}`;
+          const newEl = makeDefault(type, x, y, name);
           const maxZ = state.elements.reduce((m, e) => Math.max(m, e.zIndex), 0);
           const el = { ...newEl, zIndex: maxZ + 1 };
           const newElements = [...state.elements, el];
@@ -94,11 +105,7 @@ export const useCanvasStore = create<CanvasStore>()(
           );
           const newHistory = state.history.slice(0, state.historyIndex + 1);
           newHistory.push(newElements);
-          return {
-            elements: newElements,
-            history: newHistory,
-            historyIndex: newHistory.length - 1,
-          };
+          return { elements: newElements, history: newHistory, historyIndex: newHistory.length - 1 };
         });
       },
 
@@ -120,9 +127,7 @@ export const useCanvasStore = create<CanvasStore>()(
 
       moveElement: (id, x, y) => {
         set((state) => ({
-          elements: state.elements.map((el) =>
-            el.id === id ? { ...el, x, y } : el
-          ),
+          elements: state.elements.map((el) => el.id === id ? { ...el, x, y } : el),
         }));
       },
 
@@ -197,6 +202,35 @@ export const useCanvasStore = create<CanvasStore>()(
 
       setCanvasSize: (preset, width, height) => {
         set({ canvasPreset: preset, canvasWidth: width, canvasHeight: height, selectedId: null });
+      },
+
+      renameElement: (id, name) => {
+        set((state) => ({
+          elements: state.elements.map((el) => el.id === id ? { ...el, name } : el),
+        }));
+      },
+
+      toggleVisibility: (id) => {
+        set((state) => ({
+          elements: state.elements.map((el) => el.id === id ? { ...el, visible: !el.visible } : el),
+        }));
+      },
+
+      toggleLock: (id) => {
+        set((state) => ({
+          elements: state.elements.map((el) => el.id === id ? { ...el, locked: !el.locked } : el),
+        }));
+      },
+
+      // orderedIds: top layer first (highest z-index)
+      reorderLayers: (orderedIds) => {
+        set((state) => ({
+          elements: state.elements.map((el) => {
+            const idx = orderedIds.indexOf(el.id);
+            if (idx === -1) return el;
+            return { ...el, zIndex: orderedIds.length - idx };
+          }),
+        }));
       },
     }),
     {

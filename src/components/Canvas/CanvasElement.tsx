@@ -155,6 +155,7 @@ export default function CanvasElement({ element, scale, onDragMove, onDragEnd }:
   const onMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if ((e.target as HTMLElement).dataset.resize) return;
+      if (element.locked) { selectElement(element.id); return; } // locked: select only, no drag
       e.stopPropagation();
 
       dragStart.current = {
@@ -203,6 +204,8 @@ export default function CanvasElement({ element, scale, onDragMove, onDragEnd }:
     [element, scale, moveElement, selectElement, onDragMove, onDragEnd]
   );
 
+  if (element.visible === false) return null;
+
   return (
     <div
       onMouseDown={onMouseDown}
@@ -214,15 +217,24 @@ export default function CanvasElement({ element, scale, onDragMove, onDragEnd }:
         height: element.height,
         zIndex: element.zIndex,
         opacity: element.opacity / 100,
-        cursor: 'move',
-        outline: isSelected ? '2px solid #6c63ff' : 'none',
+        cursor: element.locked ? 'default' : 'move',
+        outline: isSelected ? `2px solid ${element.locked ? '#f59e0b' : '#6c63ff'}` : 'none',
         outlineOffset: 1,
         userSelect: 'none',
         boxSizing: 'border-box',
       }}
     >
       <ElementContent element={element} />
-      {isSelected && <ResizeHandle element={element} scale={scale} />}
+      {/* Lock badge */}
+      {element.locked && (
+        <div style={{ position: 'absolute', top: 3, right: 3, pointerEvents: 'none' }}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" strokeWidth="1">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+      )}
+      {isSelected && !element.locked && <ResizeHandle element={element} scale={scale} />}
     </div>
   );
 }

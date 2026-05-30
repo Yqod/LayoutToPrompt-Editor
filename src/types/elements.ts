@@ -9,6 +9,9 @@ export interface BaseElement {
   height: number;
   opacity: number;
   zIndex: number;
+  name: string;
+  visible: boolean;
+  locked: boolean;
 }
 
 export interface TextElement extends BaseElement {
