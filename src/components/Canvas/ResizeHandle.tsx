@@ -37,7 +37,7 @@ export default function ResizeHandle({ element, scale }: Props) {
       const startElX = element.x;
       const startElY = element.y;
 
-      const onMove = (mv: MouseEvent) => {
+      const onMove = (mv: PointerEvent) => {
         const dx = (mv.clientX - startX) / scale;
         const dy = (mv.clientY - startY) / scale;
 
@@ -55,12 +55,14 @@ export default function ResizeHandle({ element, scale }: Props) {
       };
 
       const onUp = () => {
-        window.removeEventListener('mousemove', onMove);
-        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
       };
 
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('mouseup', onUp);
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     },
     [element, scale, resizeElement]
   );

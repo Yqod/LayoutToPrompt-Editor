@@ -17,6 +17,13 @@ function ElementContent({ element }: { element: CanvasElementType }) {
     case 'paragraph':
     case 'button': {
       const t = element as TextElement;
+      const LETTER_SPACING_CSS: Record<string, string> = {
+        tighter: '-0.05em', tight: '-0.025em', normal: '0em',
+        wide: '0.025em', wider: '0.05em', widest: '0.1em',
+      };
+      const LINE_HEIGHT_CSS: Record<string, number> = {
+        none: 1, tight: 1.25, snug: 1.375, normal: 1.5, relaxed: 1.625, loose: 2,
+      };
       return (
         <div
           style={{
@@ -30,9 +37,14 @@ function ElementContent({ element }: { element: CanvasElementType }) {
             fontFamily: t.fontFamily,
             fontSize: t.fontSize,
             fontWeight: t.fontWeight,
+            fontStyle: t.fontStyle ?? 'normal',
             color: t.color,
             backgroundColor: t.backgroundColor === 'transparent' ? 'transparent' : t.backgroundColor,
             borderRadius: t.borderRadius,
+            textDecoration: t.textDecoration === 'none' ? undefined : t.textDecoration,
+            textTransform: (t.textTransform === 'none' ? undefined : t.textTransform) as React.CSSProperties['textTransform'],
+            letterSpacing: LETTER_SPACING_CSS[t.letterSpacing ?? 'normal'],
+            lineHeight: LINE_HEIGHT_CSS[t.lineHeight ?? 'normal'],
             wordBreak: 'break-word',
             overflow: 'hidden',
             boxSizing: 'border-box',
@@ -74,6 +86,25 @@ function ElementContent({ element }: { element: CanvasElementType }) {
     }
     case 'image': {
       const img = element as ImageElement;
+      const SHADOW_CSS: Record<string, string> = {
+        'none': 'none',
+        'sm':   '0 1px 2px 0 rgba(0,0,0,0.05)',
+        'md':   '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+        'lg':   '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+        'xl':   '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+        '2xl':  '0 25px 50px -12px rgba(0,0,0,0.25)',
+      };
+      const OBJ_POS: Record<string, string> = {
+        'center': 'center', 'top': 'top', 'bottom': 'bottom',
+        'left': 'left', 'right': 'right',
+        'top-left': 'left top', 'top-right': 'right top',
+        'bottom-left': 'left bottom', 'bottom-right': 'right bottom',
+      };
+      const bw  = img.borderWidth  ?? 0;
+      const bc  = img.borderColor  ?? '#d1d5db';
+      const sh  = img.shadow       ?? 'none';
+      const gs  = img.grayscale    ?? false;
+      const op  = img.objectPosition ?? 'center';
       return (
         <div
           style={{
@@ -88,6 +119,9 @@ function ElementContent({ element }: { element: CanvasElementType }) {
             justifyContent: 'center',
             gap: 6,
             boxSizing: 'border-box',
+            border: bw > 0 ? `${bw}px solid ${bc}` : undefined,
+            boxShadow: SHADOW_CSS[sh] !== 'none' ? SHADOW_CSS[sh] : undefined,
+            filter: gs ? 'grayscale(100%)' : undefined,
           }}
         >
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
@@ -97,6 +131,9 @@ function ElementContent({ element }: { element: CanvasElementType }) {
           </svg>
           <span style={{ fontSize: 11, color: '#6b7280', textAlign: 'center', padding: '0 8px', lineHeight: 1.3 }}>
             {img.placeholder}
+          </span>
+          <span style={{ fontSize: 9, color: '#9ca3af' }}>
+            {img.objectFit} · {OBJ_POS[op]}
           </span>
         </div>
       );
@@ -132,7 +169,7 @@ export default function CanvasElement({ element, scale, onDragMove, onDragEnd }:
       let dragReady = false;
       const activationTimer = setTimeout(() => { dragReady = true; }, 120);
 
-      const onMove = (mv: MouseEvent) => {
+      const onMove = (mv: PointerEvent) => {
         if (!dragStart.current || !dragReady) return;
         const dx = (mv.clientX - dragStart.current.mouseX) / scale;
         const dy = (mv.clientY - dragStart.current.mouseY) / scale;
@@ -154,12 +191,14 @@ export default function CanvasElement({ element, scale, onDragMove, onDragEnd }:
         }
         dragStart.current = null;
         isDragging.current = false;
-        window.removeEventListener('mousemove', onMove);
-        window.removeEventListener('mouseup', onUp);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
       };
 
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('mouseup', onUp);
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     },
     [element, scale, moveElement, selectElement, onDragMove, onDragEnd]
   );

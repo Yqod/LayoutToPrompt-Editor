@@ -21,6 +21,12 @@ export interface TextElement extends BaseElement {
   backgroundColor: string;
   textAlign: 'left' | 'center' | 'right';
   borderRadius: number;
+  hLevel?: 1 | 2 | 3 | 4 | 5 | 6;                            // heading only
+  fontStyle?: 'normal' | 'italic';
+  textDecoration?: 'none' | 'underline' | 'line-through' | 'overline';
+  textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+  letterSpacing?: 'tighter' | 'tight' | 'normal' | 'wide' | 'wider' | 'widest';
+  lineHeight?: 'none' | 'tight' | 'snug' | 'normal' | 'relaxed' | 'loose';
 }
 
 export interface ShapeElement extends BaseElement {
@@ -35,7 +41,12 @@ export interface ImageElement extends BaseElement {
   type: 'image';
   placeholder: string;
   borderRadius: number;
-  objectFit: 'cover' | 'contain' | 'fill';
+  objectFit: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  objectPosition: 'center' | 'top' | 'bottom' | 'left' | 'right' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  shadow: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  borderWidth: number;
+  borderColor: string;
+  grayscale: boolean;
 }
 
 export type CanvasElement = TextElement | ShapeElement | ImageElement;

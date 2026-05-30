@@ -10,7 +10,7 @@ export const DEFAULT_HEADING: WithoutId<TextElement> = {
   height: 60,
   opacity: 100,
   zIndex: 1,
-  content: 'Überschrift',
+  content: 'Heading',
   fontSize: 36,
   fontFamily: 'Inter',
   fontWeight: 'bold',
@@ -18,6 +18,12 @@ export const DEFAULT_HEADING: WithoutId<TextElement> = {
   backgroundColor: 'transparent',
   textAlign: 'left',
   borderRadius: 0,
+  hLevel: 1,
+  fontStyle: 'normal',
+  textDecoration: 'none',
+  textTransform: 'none',
+  letterSpacing: 'normal',
+  lineHeight: 'normal',
 };
 
 export const DEFAULT_PARAGRAPH: WithoutId<TextElement> = {
@@ -28,7 +34,7 @@ export const DEFAULT_PARAGRAPH: WithoutId<TextElement> = {
   height: 80,
   opacity: 100,
   zIndex: 1,
-  content: 'Hier steht dein Text. Klicke zum Bearbeiten.',
+  content: 'Your text here. Click to edit.',
   fontSize: 16,
   fontFamily: 'Inter',
   fontWeight: 'normal',
@@ -36,6 +42,11 @@ export const DEFAULT_PARAGRAPH: WithoutId<TextElement> = {
   backgroundColor: 'transparent',
   textAlign: 'left',
   borderRadius: 0,
+  fontStyle: 'normal',
+  textDecoration: 'none',
+  textTransform: 'none',
+  letterSpacing: 'normal',
+  lineHeight: 'normal',
 };
 
 export const DEFAULT_BUTTON: WithoutId<TextElement> = {
@@ -54,6 +65,11 @@ export const DEFAULT_BUTTON: WithoutId<TextElement> = {
   backgroundColor: '#6c63ff',
   textAlign: 'center',
   borderRadius: 8,
+  fontStyle: 'normal',
+  textDecoration: 'none',
+  textTransform: 'none',
+  letterSpacing: 'normal',
+  lineHeight: 'normal',
 };
 
 export const DEFAULT_RECTANGLE: WithoutId<ShapeElement> = {
@@ -92,9 +108,14 @@ export const DEFAULT_IMAGE: WithoutId<ImageElement> = {
   height: 200,
   opacity: 100,
   zIndex: 1,
-  placeholder: 'Bild-Beschreibung',
+  placeholder: 'Image description',
   borderRadius: 8,
   objectFit: 'cover',
+  objectPosition: 'center',
+  shadow: 'none',
+  borderWidth: 0,
+  borderColor: '#d1d5db',
+  grayscale: false,
 };
 
 export const CANVAS_WIDTH = 1440;

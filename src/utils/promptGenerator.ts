@@ -29,7 +29,7 @@ interface Translation {
   imgNote: string;
   measureNote: string;
   noResponsiveNote: (w: number) => string;
-  descHeading:   (content: string, pos: string, fs: number, color: string) => string;
+  descHeading:   (content: string, pos: string, fs: number, color: string, hLevel: number) => string;
   descParagraph: (content: string, pos: string, fs: number) => string;
   descButton:    (content: string, pos: string, w: number, h: number, bg: string) => string;
   descImage:     (placeholder: string, pos: string, w: number, h: number) => string;
@@ -64,7 +64,7 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Bilder als <img> mit passendem alt-Text aus dem placeholder-Feld',
     measureNote:      '- Alle Maße in px (außer bei Tailwind – dort nächstbeste Utility-Klasse)',
     noResponsiveNote: (w) => `- Responsivität ist nicht erforderlich – Desktop-Layout (${w}px breit)`,
-    descHeading:   (c, pos, fs, col) => `Eine Überschrift "${c}" (${pos}, Schriftgröße ${fs}px, Farbe ${col})`,
+    descHeading:   (c, pos, fs, col, h) => `Eine H${h}-Überschrift "${c}" (${pos}, Schriftgröße ${fs}px, Farbe ${col})`,
     descParagraph: (c, pos, fs)      => `Ein Textabsatz "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Ein Button "${c}" (${pos}, ${w}×${h}px, Hintergrund ${bg})`,
     descImage:     (p, pos, w, h)    => `Ein Bild-Platzhalter: "${p}" (${pos}, ${w}×${h}px)`,
@@ -98,7 +98,7 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Images as <img> with appropriate alt text from the placeholder field',
     measureNote:      '- All measurements in px (except Tailwind – use the nearest utility class)',
     noResponsiveNote: (w) => `- Responsiveness is not required – desktop layout (${w}px wide)`,
-    descHeading:   (c, pos, fs, col) => `A heading "${c}" (${pos}, font-size ${fs}px, color ${col})`,
+    descHeading:   (c, pos, fs, col, h) => `An H${h} heading "${c}" (${pos}, font-size ${fs}px, color ${col})`,
     descParagraph: (c, pos, fs)      => `A text paragraph "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `A button "${c}" (${pos}, ${w}×${h}px, background ${bg})`,
     descImage:     (p, pos, w, h)    => `An image placeholder: "${p}" (${pos}, ${w}×${h}px)`,
@@ -132,7 +132,7 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Images en tant que <img> avec un texte alt approprié issu du champ placeholder',
     measureNote:      '- Toutes les mesures en px (sauf Tailwind – utilise la classe utilitaire la plus proche)',
     noResponsiveNote: (w) => `- Le responsive n'est pas requis – mise en page desktop (${w}px de large)`,
-    descHeading:   (c, pos, fs, col) => `Un titre "${c}" (${pos}, taille de police ${fs}px, couleur ${col})`,
+    descHeading:   (c, pos, fs, col, h) => `Un titre H${h} "${c}" (${pos}, taille de police ${fs}px, couleur ${col})`,
     descParagraph: (c, pos, fs)      => `Un paragraphe de texte "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Un bouton "${c}" (${pos}, ${w}×${h}px, fond ${bg})`,
     descImage:     (p, pos, w, h)    => `Un placeholder d'image : "${p}" (${pos}, ${w}×${h}px)`,
@@ -166,7 +166,7 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Imágenes como <img> con texto alt apropiado del campo placeholder',
     measureNote:      '- Todas las medidas en px (excepto Tailwind – usa la clase utilitaria más cercana)',
     noResponsiveNote: (w) => `- No se requiere diseño responsive – layout de escritorio (${w}px de ancho)`,
-    descHeading:   (c, pos, fs, col) => `Un encabezado "${c}" (${pos}, tamaño de fuente ${fs}px, color ${col})`,
+    descHeading:   (c, pos, fs, col, h) => `Un encabezado H${h} "${c}" (${pos}, tamaño de fuente ${fs}px, color ${col})`,
     descParagraph: (c, pos, fs)      => `Un párrafo de texto "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Un botón "${c}" (${pos}, ${w}×${h}px, fondo ${bg})`,
     descImage:     (p, pos, w, h)    => `Un marcador de imagen: "${p}" (${pos}, ${w}×${h}px)`,
@@ -200,7 +200,7 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Изображения как <img> с подходящим alt из поля placeholder',
     measureNote:      '- Все размеры в px (кроме Tailwind – используй ближайший утилитарный класс)',
     noResponsiveNote: (w) => `- Адаптивность не требуется – десктопный макет (${w}px в ширину)`,
-    descHeading:   (c, pos, fs, col) => `Заголовок "${c}" (${pos}, размер шрифта ${fs}px, цвет ${col})`,
+    descHeading:   (c, pos, fs, col, h) => `Заголовок H${h} "${c}" (${pos}, размер шрифта ${fs}px, цвет ${col})`,
     descParagraph: (c, pos, fs)      => `Текстовый абзац "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Кнопка "${c}" (${pos}, ${w}×${h}px, фон ${bg})`,
     descImage:     (p, pos, w, h)    => `Заглушка изображения: "${p}" (${pos}, ${w}×${h}px)`,
@@ -260,7 +260,7 @@ function describeElement(
 
   switch (el.type) {
     case 'heading':
-      return t.descHeading(truncate((el as TextElement).content), pos, (el as TextElement).fontSize, (el as TextElement).color);
+      return t.descHeading(truncate((el as TextElement).content), pos, (el as TextElement).fontSize, (el as TextElement).color, (el as TextElement).hLevel ?? 1);
     case 'paragraph':
       return t.descParagraph(truncate((el as TextElement).content), pos, (el as TextElement).fontSize);
     case 'button':
@@ -298,7 +298,23 @@ function elementToJsonSpec(
     case 'paragraph':
     case 'button': {
       const tx = el as TextElement;
-      return { ...base, content: tx.content, fontSize: tx.fontSize, fontFamily: tx.fontFamily, fontWeight: tx.fontWeight, color: tx.color, backgroundColor: tx.backgroundColor, textAlign: tx.textAlign, borderRadius: tx.borderRadius };
+      return {
+        ...base,
+        ...(tx.type === 'heading' ? { hLevel: tx.hLevel ?? 1, htmlTag: `h${tx.hLevel ?? 1}` } : {}),
+        content: tx.content,
+        fontSize: tx.fontSize,
+        fontFamily: tx.fontFamily,
+        fontWeight: tx.fontWeight,
+        fontStyle: tx.fontStyle ?? 'normal',
+        color: tx.color,
+        backgroundColor: tx.backgroundColor,
+        textAlign: tx.textAlign,
+        textTransform: tx.textTransform ?? 'none',
+        textDecoration: tx.textDecoration ?? 'none',
+        letterSpacing: tx.letterSpacing ?? 'normal',
+        lineHeight: tx.lineHeight ?? 'normal',
+        borderRadius: tx.borderRadius,
+      };
     }
     case 'rectangle':
     case 'circle': {
@@ -307,7 +323,17 @@ function elementToJsonSpec(
     }
     case 'image': {
       const img = el as ImageElement;
-      return { ...base, placeholder: img.placeholder, borderRadius: img.borderRadius, objectFit: img.objectFit };
+      return {
+        ...base,
+        placeholder:    img.placeholder,
+        objectFit:      img.objectFit,
+        objectPosition: img.objectPosition ?? 'center',
+        borderRadius:   img.borderRadius,
+        borderWidth:    img.borderWidth  ?? 0,
+        borderColor:    img.borderColor  ?? '#d1d5db',
+        shadow:         img.shadow       ?? 'none',
+        grayscale:      img.grayscale    ?? false,
+      };
     }
   }
 }
