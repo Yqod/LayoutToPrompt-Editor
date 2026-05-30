@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { CanvasElement as CanvasElementType, ElementType } from '../../types/elements';
 import CanvasElement from './CanvasElement';
+import ContextMenu from './ContextMenu';
 
 interface SnapGuide {
   type: 'x' | 'y'; // x = vertical line, y = horizontal line
@@ -90,22 +91,25 @@ function computeSnap(
 }
 
 export default function Canvas() {
-  const { elements, selectedId, canvasWidth, canvasHeight, selectElement, deleteElement, undo, redo, addElement } =
+  const { elements, selectedId, canvasWidth, canvasHeight, selectElement, deleteElement, undo, redo, addElement, togglePromptOpen, promptOpen } =
     useCanvasStore(useShallow((s) => ({
-      elements: s.elements,
-      selectedId: s.selectedId,
-      canvasWidth: s.canvasWidth,
-      canvasHeight: s.canvasHeight,
-      selectElement: s.selectElement,
-      deleteElement: s.deleteElement,
-      undo: s.undo,
-      redo: s.redo,
-      addElement: s.addElement,
+      elements:         s.elements,
+      selectedId:       s.selectedId,
+      canvasWidth:      s.canvasWidth,
+      canvasHeight:     s.canvasHeight,
+      selectElement:    s.selectElement,
+      deleteElement:    s.deleteElement,
+      undo:             s.undo,
+      redo:             s.redo,
+      addElement:       s.addElement,
+      togglePromptOpen: s.togglePromptOpen,
+      promptOpen:       s.promptOpen,
     })));
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [snapGuides, setSnapGuides] = useState<SnapGuide[]>([]);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; elementId: string } | null>(null);
 
   const { setNodeRef, isOver } = useDroppable({ id: 'canvas' });
 
@@ -172,6 +176,15 @@ export default function Canvas() {
 
   const handleDragEnd = useCallback(() => setSnapGuides([]), []);
 
+  const makeContextMenu = useCallback(
+    (id: string) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setContextMenu({ x: e.clientX, y: e.clientY, elementId: id });
+    },
+    []
+  );
+
   const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
 
   return (
@@ -187,6 +200,7 @@ export default function Canvas() {
       <div
         ref={setNodeRef}
         onMouseDown={handleCanvasClick}
+        onContextMenu={(e) => e.preventDefault()}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
         style={{
@@ -222,6 +236,7 @@ export default function Canvas() {
             scale={scale}
             onDragMove={makeDragMove(el.id)}
             onDragEnd={handleDragEnd}
+            onContextMenu={makeContextMenu(el.id)}
           />
         ))}
 
@@ -261,9 +276,41 @@ export default function Canvas() {
         )}
       </div>
 
+      {/* Canvas info */}
       <div className="absolute bottom-3 right-4 text-xs text-gray-400 select-none">
         {canvasWidth}×{canvasHeight}px · scale {Math.round(scale * 100)}%
       </div>
+
+      {/* Context menu — fixed position, not affected by canvas scale */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          elementId={contextMenu.elementId}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
+
+      {/* Generate Prompt — floating button below canvas */}
+      {elements.length > 0 && (
+        <button
+          onClick={togglePromptOpen}
+          className={`
+            absolute bottom-5 left-1/2 -translate-x-1/2
+            flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold
+            transition-all duration-200 shadow-lg select-none
+            ${promptOpen
+              ? 'bg-violet-700 text-white shadow-violet-700/30'
+              : 'bg-violet-600 hover:bg-violet-500 text-white shadow-violet-600/40 hover:shadow-violet-500/50 hover:scale-105'
+            }
+          `}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          Generate Prompt
+        </button>
+      )}
     </div>
   );
 }

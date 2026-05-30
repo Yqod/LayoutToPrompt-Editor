@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react'; // useState still used for tab/format/language/context
 import { useShallow } from 'zustand/react/shallow';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { generatePrompt, OutputFormat, PromptLanguage } from '../../utils/promptGenerator';
@@ -70,23 +70,28 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export default function PromptPanel() {
-  const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('combined');
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('html');
   const [language, setLanguage] = useState<PromptLanguage>('de');
   const [userContext, setUserContext] = useState('');
 
-  const { elements, canvasWidth, canvasHeight } = useCanvasStore(useShallow((s) => ({
-    elements: s.elements,
-    canvasWidth: s.canvasWidth,
-    canvasHeight: s.canvasHeight,
+  const { elements, canvasWidth, canvasHeight, responsive, addToExisting, promptOpen, togglePromptOpen } = useCanvasStore(useShallow((s) => ({
+    elements:         s.elements,
+    canvasWidth:      s.canvasWidth,
+    canvasHeight:     s.canvasHeight,
+    responsive:       s.responsive,
+    addToExisting:    s.addToExisting,
+    promptOpen:       s.promptOpen,
+    togglePromptOpen: s.togglePromptOpen,
   })));
 
   const prompt = generatePrompt(
     { elements, selectedId: null, canvasWidth, canvasHeight },
     userContext,
     outputFormat,
-    language
+    language,
+    responsive,
+    addToExisting
   );
 
   const activeContent: Record<Tab, string> = {
@@ -103,40 +108,24 @@ export default function PromptPanel() {
 
   return (
     <div className="border-t border-[#2a2a3e] bg-[#1e1e2e] shrink-0">
-      {/* Toggle bar */}
-      <div className="flex items-center justify-between px-4 py-2">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsOpen((o) => !o)}
-            className="flex items-center gap-2 text-sm font-semibold text-gray-200 hover:text-white transition-colors"
-          >
-            <svg
-              width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="2"
-              className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-            >
-              <polyline points="18 15 12 9 6 15" />
-            </svg>
-            Prompt Generator
-          </button>
-          <span className="text-[10px] bg-[#2a2a3e] text-gray-400 px-2 py-0.5 rounded-full">
-            {elements.length} element{elements.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-
+      {/* Collapse handle — minimal, just a thin drag target */}
+      {promptOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 px-4 py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold rounded-lg transition-colors"
+          onClick={togglePromptOpen}
+          className="w-full flex items-center justify-center py-1 text-gray-600 hover:text-gray-400 transition-colors group"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          <svg
+            width="14" height="14" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2"
+            className="group-hover:translate-y-0.5 transition-transform"
+          >
+            <polyline points="6 9 12 15 18 9" />
           </svg>
-          Generate Prompt
         </button>
-      </div>
+      )}
 
       {/* Expanded panel */}
-      {isOpen && (
+      {promptOpen && (
         <div className="px-4 pb-4 flex flex-col gap-3">
 
           {/* Controls row */}

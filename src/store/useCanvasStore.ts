@@ -30,10 +30,19 @@ interface CanvasStore {
   resizeElement: (id: string, width: number, height: number, x?: number, y?: number) => void;
   bringForward: (id: string) => void;
   sendBackward: (id: string) => void;
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
+  duplicateElement: (id: string) => void;
   undo: () => void;
   redo: () => void;
   clearCanvas: () => void;
   setCanvasSize: (preset: CanvasPresetId, width: number, height: number) => void;
+  responsive: boolean;
+  toggleResponsive: () => void;
+  addToExisting: boolean;
+  toggleAddToExisting: () => void;
+  promptOpen: boolean;
+  togglePromptOpen: () => void;
   // Layers panel actions
   renameElement: (id: string, name: string) => void;
   toggleVisibility: (id: string) => void;
@@ -76,6 +85,9 @@ export const useCanvasStore = create<CanvasStore>()(
       canvasWidth: CANVAS_WIDTH,
       canvasHeight: CANVAS_HEIGHT,
       canvasPreset: 'desktop' as CanvasPresetId,
+      responsive: false,
+      addToExisting: false,
+      promptOpen: false,
       history: [[]],
       historyIndex: 0,
 
@@ -182,6 +194,36 @@ export const useCanvasStore = create<CanvasStore>()(
         });
       },
 
+      bringToFront: (id) => {
+        set((state) => {
+          const maxZ = state.elements.reduce((m, e) => Math.max(m, e.zIndex), 0);
+          return { elements: state.elements.map((e) => e.id === id ? { ...e, zIndex: maxZ + 1 } : e) };
+        });
+      },
+
+      sendToBack: (id) => {
+        set((state) => {
+          const minZ = state.elements.reduce((m, e) => Math.min(m, e.zIndex), Infinity);
+          return { elements: state.elements.map((e) => e.id === id ? { ...e, zIndex: minZ - 1 } : e) };
+        });
+      },
+
+      duplicateElement: (id) => {
+        set((state) => {
+          const el = state.elements.find((e) => e.id === id);
+          if (!el) return state;
+          const maxZ = state.elements.reduce((m, e) => Math.max(m, e.zIndex), 0);
+          const baseName = el.name.replace(/ \(copy( \d+)?\)$/, '');
+          const copies = state.elements.filter((e) => e.name.startsWith(`${baseName} (copy`)).length;
+          const copyName = copies === 0 ? `${baseName} (copy)` : `${baseName} (copy ${copies + 1})`;
+          const dup: typeof el = { ...el, id: genId(), x: el.x + 16, y: el.y + 16, name: copyName, zIndex: maxZ + 1 };
+          const newElements = [...state.elements, dup];
+          const newHistory = state.history.slice(0, state.historyIndex + 1);
+          newHistory.push(newElements);
+          return { elements: newElements, selectedId: dup.id, history: newHistory, historyIndex: newHistory.length - 1 };
+        });
+      },
+
       undo: () => {
         const { historyIndex, history } = get();
         if (historyIndex <= 0) return;
@@ -203,6 +245,10 @@ export const useCanvasStore = create<CanvasStore>()(
       setCanvasSize: (preset, width, height) => {
         set({ canvasPreset: preset, canvasWidth: width, canvasHeight: height, selectedId: null });
       },
+
+      toggleResponsive: () => set((s) => ({ responsive: !s.responsive })),
+      toggleAddToExisting: () => set((s) => ({ addToExisting: !s.addToExisting })),
+      togglePromptOpen: () => set((s) => ({ promptOpen: !s.promptOpen })),
 
       renameElement: (id, name) => {
         set((state) => ({
@@ -240,6 +286,8 @@ export const useCanvasStore = create<CanvasStore>()(
         canvasWidth: state.canvasWidth,
         canvasHeight: state.canvasHeight,
         canvasPreset: state.canvasPreset,
+        responsive: state.responsive,
+        addToExisting: state.addToExisting,
       }),
     }
   )

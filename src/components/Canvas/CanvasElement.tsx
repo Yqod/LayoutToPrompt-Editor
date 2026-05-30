@@ -9,6 +9,7 @@ interface Props {
   scale: number;
   onDragMove?: (x: number, y: number) => { x: number; y: number };
   onDragEnd?: () => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }
 
 function ElementContent({ element }: { element: CanvasElementType }) {
@@ -141,7 +142,7 @@ function ElementContent({ element }: { element: CanvasElementType }) {
   }
 }
 
-export default function CanvasElement({ element, scale, onDragMove, onDragEnd }: Props) {
+export default function CanvasElement({ element, scale, onDragMove, onDragEnd, onContextMenu }: Props) {
   const { selectedId, selectElement, moveElement } = useCanvasStore(useShallow((s) => ({
     selectedId: s.selectedId,
     selectElement: s.selectElement,
@@ -209,6 +210,7 @@ export default function CanvasElement({ element, scale, onDragMove, onDragEnd }:
   return (
     <div
       onMouseDown={onMouseDown}
+      onContextMenu={onContextMenu}
       style={{
         position: 'absolute',
         left: element.x,

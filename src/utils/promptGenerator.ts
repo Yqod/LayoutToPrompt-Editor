@@ -29,6 +29,8 @@ interface Translation {
   imgNote: string;
   measureNote: string;
   noResponsiveNote: (w: number) => string;
+  responsiveInstructions: string;
+  addToExistingInstructions: string;
   descHeading:   (content: string, pos: string, fs: number, color: string, hLevel: number) => string;
   descParagraph: (content: string, pos: string, fs: number) => string;
   descButton:    (content: string, pos: string, w: number, h: number, bg: string) => string;
@@ -64,6 +66,23 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Bilder als <img> mit passendem alt-Text aus dem placeholder-Feld',
     measureNote:      '- Alle Maße in px (außer bei Tailwind – dort nächstbeste Utility-Klasse)',
     noResponsiveNote: (w) => `- Responsivität ist nicht erforderlich – Desktop-Layout (${w}px breit)`,
+    addToExistingInstructions: `IN BESTEHENDES DESIGN INTEGRIEREN:
+- Integriere dieses Layout in ein bestehendes Projekt – baue nichts von Grund auf neu
+- Passe dich an das vorhandene Design-System an: Farbpalette, Typografie, Abstände und Komponenten-Muster
+- Verwende keine neuen Design-Bibliotheken oder CSS-Frameworks, wenn bereits welche im Projekt existieren
+- Halte dich an bestehende Konventionen (Klassen-Benennung, Dateistruktur, Komponenten-API)
+- Nutze bestehende Komponenten und Utilities wo immer möglich statt neue zu erstellen
+- Passe Abstände und Größen dem bestehenden Rhythmus des Designs an
+- Stelle sicher, dass das neue Layout sich nahtlos ins bestehende einfügt`,
+    responsiveInstructions: `RESPONSIVES DESIGN:
+- Mache das Layout vollständig responsiv mit diesen Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1440px)
+- Mobile (< 640px): Elemente vertikal stapeln, volle Breite, Abstände reduzieren
+- Tablet (640px–1024px): Layout für mittlere Bildschirme anpassen, ggf. 2-spaltig
+- Desktop (> 1024px): Exaktes Layout aus der JSON-Spezifikation verwenden
+- Schriftgrößen auf kleineren Bildschirmen proportional skalieren
+- Buttons und interaktive Elemente auf Mobile mindestens 44px hoch
+- Bilder immer mit max-width: 100% und height: auto
+- Visuelle Hierarchie und Lesbarkeit auf allen Breakpoints beibehalten`,
     descHeading:   (c, pos, fs, col, h) => `Eine H${h}-Überschrift "${c}" (${pos}, Schriftgröße ${fs}px, Farbe ${col})`,
     descParagraph: (c, pos, fs)      => `Ein Textabsatz "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Ein Button "${c}" (${pos}, ${w}×${h}px, Hintergrund ${bg})`,
@@ -98,6 +117,23 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Images as <img> with appropriate alt text from the placeholder field',
     measureNote:      '- All measurements in px (except Tailwind – use the nearest utility class)',
     noResponsiveNote: (w) => `- Responsiveness is not required – desktop layout (${w}px wide)`,
+    addToExistingInstructions: `INTEGRATE INTO EXISTING DESIGN:
+- Integrate this layout into an existing project — do not build from scratch
+- Match the existing design system: color palette, typography, spacing and component patterns
+- Do not introduce new design libraries or CSS frameworks if the project already has them
+- Follow existing conventions (class naming, file structure, component API)
+- Reuse existing components and utilities wherever possible instead of creating new ones
+- Align spacing and sizing to the existing design rhythm
+- Ensure the new layout blends seamlessly into what already exists`,
+    responsiveInstructions: `RESPONSIVE DESIGN:
+- Make the layout fully responsive using these breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1440px)
+- Mobile (< 640px): stack elements vertically, full width, reduce spacing
+- Tablet (640px–1024px): adapt layout for medium screens, consider 2-column grids
+- Desktop (> 1024px): use the exact layout from the JSON specification
+- Scale font sizes down proportionally on smaller screens
+- Buttons and interactive elements must be at least 44px tall on mobile
+- Images always with max-width: 100% and height: auto
+- Maintain visual hierarchy and readability across all breakpoints`,
     descHeading:   (c, pos, fs, col, h) => `An H${h} heading "${c}" (${pos}, font-size ${fs}px, color ${col})`,
     descParagraph: (c, pos, fs)      => `A text paragraph "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `A button "${c}" (${pos}, ${w}×${h}px, background ${bg})`,
@@ -132,6 +168,23 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Images en tant que <img> avec un texte alt approprié issu du champ placeholder',
     measureNote:      '- Toutes les mesures en px (sauf Tailwind – utilise la classe utilitaire la plus proche)',
     noResponsiveNote: (w) => `- Le responsive n'est pas requis – mise en page desktop (${w}px de large)`,
+    addToExistingInstructions: `INTÉGRER DANS UN DESIGN EXISTANT :
+- Intègre cette mise en page dans un projet existant — ne recrée rien de zéro
+- Adapte-toi au design system existant : palette de couleurs, typographie, espacements et patterns de composants
+- N'introduis pas de nouvelles bibliothèques ou frameworks CSS si le projet en possède déjà
+- Respecte les conventions existantes (nommage des classes, structure de fichiers, API des composants)
+- Réutilise les composants et utilitaires existants autant que possible au lieu d'en créer de nouveaux
+- Aligne les espacements et les tailles sur le rythme du design existant
+- Assure-toi que la nouvelle mise en page s'intègre harmonieusement dans ce qui existe`,
+    responsiveInstructions: `DESIGN RESPONSIVE :
+- Rendre la mise en page entièrement responsive avec ces breakpoints : sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1440px)
+- Mobile (< 640px) : empiler les éléments verticalement, pleine largeur, réduire les espacements
+- Tablette (640px–1024px) : adapter pour les écrans moyens, envisager une grille 2 colonnes
+- Desktop (> 1024px) : utiliser exactement la mise en page de la spécification JSON
+- Réduire proportionnellement les tailles de police sur les petits écrans
+- Les boutons et éléments interactifs doivent faire au moins 44px de hauteur sur mobile
+- Images toujours avec max-width: 100% et height: auto
+- Maintenir la hiérarchie visuelle et la lisibilité sur tous les breakpoints`,
     descHeading:   (c, pos, fs, col, h) => `Un titre H${h} "${c}" (${pos}, taille de police ${fs}px, couleur ${col})`,
     descParagraph: (c, pos, fs)      => `Un paragraphe de texte "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Un bouton "${c}" (${pos}, ${w}×${h}px, fond ${bg})`,
@@ -166,6 +219,23 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Imágenes como <img> con texto alt apropiado del campo placeholder',
     measureNote:      '- Todas las medidas en px (excepto Tailwind – usa la clase utilitaria más cercana)',
     noResponsiveNote: (w) => `- No se requiere diseño responsive – layout de escritorio (${w}px de ancho)`,
+    addToExistingInstructions: `INTEGRAR EN DISEÑO EXISTENTE:
+- Integra este layout en un proyecto existente — no construyas desde cero
+- Adáptate al sistema de diseño existente: paleta de colores, tipografía, espaciados y patrones de componentes
+- No introduzcas nuevas librerías o frameworks CSS si el proyecto ya tiene los suyos
+- Sigue las convenciones existentes (nomenclatura de clases, estructura de archivos, API de componentes)
+- Reutiliza componentes y utilidades existentes siempre que sea posible en lugar de crear nuevos
+- Alinea los espaciados y tamaños al ritmo del diseño existente
+- Asegúrate de que el nuevo layout se integre fluidamente en lo que ya existe`,
+    responsiveInstructions: `DISEÑO RESPONSIVE:
+- Hacer el diseño completamente responsive con estos breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1440px)
+- Móvil (< 640px): apilar elementos verticalmente, ancho completo, reducir espaciados
+- Tablet (640px–1024px): adaptar para pantallas medianas, considerar cuadrícula de 2 columnas
+- Desktop (> 1024px): usar exactamente el layout de la especificación JSON
+- Reducir proporcionalmente los tamaños de fuente en pantallas pequeñas
+- Botones y elementos interactivos deben tener al menos 44px de altura en móvil
+- Imágenes siempre con max-width: 100% y height: auto
+- Mantener la jerarquía visual y legibilidad en todos los breakpoints`,
     descHeading:   (c, pos, fs, col, h) => `Un encabezado H${h} "${c}" (${pos}, tamaño de fuente ${fs}px, color ${col})`,
     descParagraph: (c, pos, fs)      => `Un párrafo de texto "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Un botón "${c}" (${pos}, ${w}×${h}px, fondo ${bg})`,
@@ -200,6 +270,23 @@ const TRANSLATIONS: Record<PromptLanguage, Translation> = {
     imgNote:          '- Изображения как <img> с подходящим alt из поля placeholder',
     measureNote:      '- Все размеры в px (кроме Tailwind – используй ближайший утилитарный класс)',
     noResponsiveNote: (w) => `- Адаптивность не требуется – десктопный макет (${w}px в ширину)`,
+    addToExistingInstructions: `ИНТЕГРАЦИЯ В СУЩЕСТВУЮЩИЙ ДИЗАЙН:
+- Интегрируй этот макет в существующий проект — не создавай с нуля
+- Следуй существующей дизайн-системе: цветовая палитра, типографика, отступы и паттерны компонентов
+- Не вводи новые библиотеки или CSS-фреймворки, если они уже есть в проекте
+- Соблюдай принятые конвенции (именование классов, структура файлов, API компонентов)
+- Переиспользуй существующие компоненты и утилиты везде где возможно
+- Согласуй отступы и размеры с ритмом существующего дизайна
+- Убедись, что новый макет органично вписывается в уже существующее`,
+    responsiveInstructions: `АДАПТИВНЫЙ ДИЗАЙН:
+- Сделать макет полностью адаптивным с брейкпоинтами: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1440px)
+- Мобильный (< 640px): элементы вертикально, полная ширина, уменьшить отступы
+- Планшет (640px–1024px): адаптировать для средних экранов, возможна 2-колоночная сетка
+- Десктоп (> 1024px): использовать точный макет из JSON-спецификации
+- Пропорционально уменьшать размеры шрифтов на маленьких экранах
+- Кнопки и интерактивные элементы не менее 44px в высоту на мобильном
+- Изображения всегда с max-width: 100% и height: auto
+- Сохранять визуальную иерархию и читаемость на всех брейкпоинтах`,
     descHeading:   (c, pos, fs, col, h) => `Заголовок H${h} "${c}" (${pos}, размер шрифта ${fs}px, цвет ${col})`,
     descParagraph: (c, pos, fs)      => `Текстовый абзац "${c}" (${pos}, ${fs}px)`,
     descButton:    (c, pos, w, h, bg)=> `Кнопка "${c}" (${pos}, ${w}×${h}px, фон ${bg})`,
@@ -346,7 +433,9 @@ export function generatePrompt(
   state: CanvasState,
   userContext = '',
   outputFormat: OutputFormat = 'html',
-  language: PromptLanguage = 'de'
+  language: PromptLanguage = 'de',
+  responsive = false,
+  addToExisting = false
 ): GeneratedPrompt {
   const { elements, canvasWidth, canvasHeight } = state;
   const t = TRANSLATIONS[language];
@@ -389,8 +478,11 @@ ${t.pixelNote}`;
     t.formatInstructions[outputFormat],
     t.imgNote,
     t.measureNote,
-    t.noResponsiveNote(canvasWidth),
-  ].join('\n');
+    responsive ? '' : t.noResponsiveNote(canvasWidth),
+  ].filter(Boolean).join('\n');
+
+  const responsiveBlock    = responsive    ? `\n${t.responsiveInstructions}`    : '';
+  const addToExistingBlock = addToExisting ? `\n${t.addToExistingInstructions}` : '';
 
   const combined = `${readable}
 
@@ -400,7 +492,7 @@ ${json}
 \`\`\`
 
 ${t.instructionLabel}:
-${instructions}`;
+${instructions}${responsiveBlock}${addToExistingBlock}`;
 
   return { readable, json, combined };
 }
